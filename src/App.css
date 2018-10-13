@@ -14,3 +14,8 @@ html, body, .root {
   height: 100%;
   width: 100%;
 }
+
+.sideBar {
+  width: 25%;
+  height: 100%;
+}
