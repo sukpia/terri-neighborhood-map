@@ -27,14 +27,29 @@ class GoogleMap extends Component {
 
 	componentDidUpdate() {
 		if (this.state.isReady) {
-			console.log('Map is Ready');
 			// Display the map
 			this.map = new window.google.maps.Map(document.getElementById('map'), {
         center: {lat: 37.7749, lng: -122.4194},
-        zoom: 10,
+        zoom: 13,
         mapTypeId: 'roadmap'
       });
       // Add the markers on map below
+      this.props.markers.map((marker,index) => {
+      	console.log(index);
+      	let foursquareMarker = new window.google.maps.Marker({
+      		map: this.map,
+      		position: {lat: marker.lat, lng: marker.lng},
+      		title: marker.title,
+      		animation: window.google.maps.Animation.DROP,
+      		label: `${index}`,
+      		icon: marker.icon.prefix+'bg_32'+marker.icon.suffix
+      	});
+      });
+      let hotelMarker = new window.google.maps.Marker({
+      	position: {lat: 37.807660, lng: -122.420520},
+      	map: this.map,
+      	title: 'Argonaut Hotel'
+      });
 		}
 	}
 
