@@ -34,13 +34,14 @@ class GoogleMap extends Component {
         mapTypeId: 'roadmap'
       });
       // Add the markers on map below
-      this.props.markers.map((marker,index) => {
+      this.props.markers.filter(marker => marker.isVisible).map((marker,index) => {
+      	let labelNumber = index + 1;
       	let foursquareMarker = new window.google.maps.Marker({
       		map: this.map,
       		position: {lat: marker.lat, lng: marker.lng},
       		title: marker.title,
       		animation: window.google.maps.Animation.DROP,
-      		label: `${index}`,
+      		label: `${labelNumber}`,
       		// icon: marker.icon.prefix+'bg_32'+marker.icon.suffix
       	});
       });

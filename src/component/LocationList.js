@@ -1,8 +1,6 @@
 import React from 'react';
 
 function LocationList (props) {
-	console.log('LocationList');
-	console.log(props);
 	return (
 		<ol className='locationList' aria-label='Location List'>
 			{props.locations && props.locations.map((location,index) => (

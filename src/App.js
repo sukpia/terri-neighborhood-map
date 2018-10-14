@@ -14,7 +14,10 @@ class App extends Component {
         lat: 37.7749,
         lng: -122.4194
       },
-      zoom: 13
+      zoom: 13,
+      updateSuperState: obj => {
+        this.setState(obj);
+      }
     };
   }
 
@@ -32,7 +35,9 @@ class App extends Component {
           lng: location.venue.location.lng,
           id: location.venue.id,
           title: location.venue.name,
-          icon: location.venue.categories[0].icon
+          icon: location.venue.categories[0].icon,
+          isVisible: true,
+          isOpen: false
         };
       })
       this.setState({locations, center, markers});
