@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import LocationList from './LocationList'
 
 class SideBar extends Component {
 	render() {
@@ -8,6 +9,7 @@ class SideBar extends Component {
 				placeholder={'Search Highlighted locations'}
 				aria-label='search highlighted location' />
 				
+				<LocationList {...this.props} />
 			</section>
 		);
 	}

@@ -22,7 +22,7 @@ class App extends Component {
     SquareAPI.explore({
       near: 'San Francisco, CA',
       section: 'sights',
-      limit: 10
+      limit: 20
     }).then(results => {
       const locations = results.response.groups[0].items;
       const { center } = results.response.geocode.center;
@@ -43,7 +43,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <SideBar />
+        <SideBar {...this.state} />
         <GoogleMap {...this.state}
         />
       </div>

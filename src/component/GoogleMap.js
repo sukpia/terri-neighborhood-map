@@ -35,14 +35,13 @@ class GoogleMap extends Component {
       });
       // Add the markers on map below
       this.props.markers.map((marker,index) => {
-      	console.log(index);
       	let foursquareMarker = new window.google.maps.Marker({
       		map: this.map,
       		position: {lat: marker.lat, lng: marker.lng},
       		title: marker.title,
       		animation: window.google.maps.Animation.DROP,
       		label: `${index}`,
-      		icon: marker.icon.prefix+'bg_32'+marker.icon.suffix
+      		// icon: marker.icon.prefix+'bg_32'+marker.icon.suffix
       	});
       });
       let hotelMarker = new window.google.maps.Marker({
