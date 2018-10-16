@@ -49,3 +49,10 @@ html, body, .root {
   display: flex;
   align-items: center;
 }
+
+.infowindow {
+  display: flex;
+  flex-wrap: wrap;
+  width: 200px;
+  font-size: 12px;
+}

@@ -33,11 +33,12 @@ class SideBar extends Component {
 			return marker;
 		});
 		// Update the state in the App.js
-		this.props.updateSuperState({markers})
+		this.props.markersReload(true);
+		this.props.updateSuperState({markers});
 	}
 
 	render() {
-		console.log(this.props);
+		// console.log(this.props);
 		return (
 			<section className='sideBar'>
 				<input type={'search'} id={'search'}
