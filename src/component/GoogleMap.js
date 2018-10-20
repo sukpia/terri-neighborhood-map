@@ -4,7 +4,6 @@
 // https://stackoverflow.com/questions/2946165/google-map-api-v3-simply-close-an-infowindow
 
 import React, { Component } from 'react';
-import SquareAPI from '../api/';
 
 class GoogleMap extends Component {
 	constructor(props) {
@@ -12,65 +11,47 @@ class GoogleMap extends Component {
 		this.onScriptLoad = this.onScriptLoad.bind(this);
 		this.state = {
 			IsReady: false,
+			map: {}
 		};
 	}
 
 	// Close all the markers and infowindows that are opened
 	closeInfoWindow = () => {
 		this.props.markers.forEach(marker => {
-			if(marker.infowindow) {
+			if (marker.hasOwnProperty('infowindow')) {
 				marker.infowindow.close();
 			}
 		})
 	}
 
-	// If marker is clicked, access foursquare api to get the location detail information
-	// Then add the information to google map infowindow and display it
-	handleMarkerClick = (marker, map) => {
-		// don't refresh the markers when open infowindow
-		this.props.markersReload(false);
-    // Find the venue details using Foursquare API for the clicked marker, and update the location with detail info
-    // https://developer.foursquare.com/docs/api/venues/details
-    SquareAPI.getVenueDetails(marker.id)
-    .then(res => {
-      if(res.meta.code >= 400) {
-        alert("ERROR: " + res.meta.errorDetail);
-      } else {
-      	const locationDetails = res.response.venue;
-        this.props.updateSuperState({ locationDetails });
-        this.populateInfoWindow(marker,map);
-      }
-    }).catch(error => alert(`SquareAPI getVenueDetails error: ${error}`));
-  }
-
   // Create infowindow
 	populateInfoWindow = (marker, map) => {
-		if(this.props.locationDetails) {
+		if((this.props.locationDetails.name === marker.title) && marker.isOpen) {
 			// Set the content for infowindow based on info from Foursquare getVenueDetails 
 			let contentString = '<section class="infowindow">' +
 				'<img src=' + this.props.locationDetails.bestPhoto.prefix +'200x200' + this.props.locationDetails.bestPhoto.suffix + ' alt=' + this.props.locationDetails.name + ' />' +
 				'<h3>' + this.props.locationDetails.name + '</h3>' +
 				'<p>' + this.props.locationDetails.location.formattedAddress + '</p>' +
 				'</section>';
-			
 			// Create the infowindow with required information and add the infowindow object as a property to the marker
 			marker.infowindow = new window.google.maps.InfoWindow({
 	      content: contentString,
-	      position: { lat: marker.lat, lng: marker.lng }
+	      position: { lat: marker.lat, lng: marker.lng },
+	      pixelOffset: new window.google.maps.Size(0, -40)
 	    });
 	    // Open the infowindow
     	marker.infowindow.open(map);
-		} else {
-			console.log('No information for this location');
 		}
   }
 
 	// This function is where I create the markers and infowindow
   onMapLoad = (map) => {
+  	this.closeInfoWindow();
     // Only display the markers that are set to Visible
-    this.props.markers.filter(marker => marker.isVisible).map((marker,index) => {
+    const foursquareMarkers = this.props.markers.filter(marker => marker.isVisible).map((marker,index) => {
       // label number for the marker
       let labelNumber = index + 1;
+
       // create a marker per location, set the marker location, title, animation, and label
       let foursquareMarker = new window.google.maps.Marker({
         map: map,
@@ -80,12 +61,23 @@ class GoogleMap extends Component {
         label: `${labelNumber}`,
         // icon: marker.icon.prefix+'bg_32'+marker.icon.suffix
       });
-      // Add event listener for each marker
+
+      // If list item on the sidebar is clicked, open infowindow
+      if (marker.isOpen) {
+      	// animate the marker
+      	foursquareMarker.setAnimation(window.google.maps.Animation.DROP);
+      	this.populateInfoWindow(marker, map);
+      } else {
+      	foursquareMarker.setAnimation(null);
+      	console.log(foursquareMarker.title + ' is null');
+      }
+      
+      // If marker is clicked, open infowindow
       foursquareMarker.addListener('click', (evt) => {
-      	// close the opened infoWindow
-      	this.closeInfoWindow();
       	// function for handling marker click
-    		this.handleMarkerClick(marker, map);
+    		this.props.handleMarkerClick(marker);
+      	// Open the infowindow for clicked marker
+  			this.populateInfoWindow(marker, map);
       });
 
       return foursquareMarker;
@@ -100,10 +92,13 @@ class GoogleMap extends Component {
 
   // Create map
 	onScriptLoad() {
-		const map = new window.google.maps.Map(
-      document.getElementById('map'),
-      this.props.options);
-    this.onMapLoad(map);
+		if (this.props.loadMap) {
+			this.state.map = new window.google.maps.Map(
+	      document.getElementById('map'),
+	      this.props.options);
+		}
+		this.onMapLoad(this.state.map);
+		
 	}
 
 	// Add the google map script at the end of body element after the map div is mounted.
@@ -127,7 +122,7 @@ class GoogleMap extends Component {
 
 	// Update the markers location from Foursquare after finish updating the componenents
 	componentDidUpdate(prevProps, prevState) {
-		if (this.state.isReady && this.props.reloadMarkers) {
+		if (this.state.isReady) {
 			this.onScriptLoad();
 		}
 	}

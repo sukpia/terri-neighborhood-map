@@ -33,7 +33,7 @@ class SideBar extends Component {
 			return marker;
 		});
 		// Update the state in the App.js
-		this.props.markersReload(true);
+		this.props.mapLoad(true);
 		this.props.updateSuperState({markers});
 	}
 
@@ -47,7 +47,7 @@ class SideBar extends Component {
 					onChange={this.handleChange} autoFocus
 				/>
 				
-				<LocationList {...this.props} locations={this.handleFilterLocation()} />
+				<LocationList {...this.props} locations={this.handleFilterLocation()} handleListItemClick={this.props.handleListItemClick} />
 			</section>
 		);
 	}

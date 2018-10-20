@@ -6,7 +6,7 @@ import SquareAPI from './api/';
 
 class App extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       locations: [],
       markers: [],
@@ -16,19 +16,57 @@ class App extends Component {
       },
       zoom: 13,
       locationDetails: {},
-      reloadMarkers: true,
+      loadMap: true,
       updateSuperState: obj => {
         this.setState(obj);
       }
     };
   }
 
-  markersReload = (reload) => {
-    if (reload) {
-      this.setState({ reloadMarkers: true });
+  mapLoad = (load) => {
+    if (load) {
+      this.setState({ loadMap: true });
     } else {
-      this.setState({ reloadMarkers: false });
+      this.setState({ loadMap: false });
     }
+  }
+
+  closeAllMarkers = () => {
+    const markers = this.state.markers.map(marker => {
+      marker.isOpen = false;
+      return marker;
+    })
+    this.setState({markers: Object.assign(this.state.markers, markers)});
+  }
+
+  // If marker is clicked, access foursquare api to get the location detail information
+  // Then add the information to google map infowindow and display it
+  handleMarkerClick = (marker) => {
+    // don't refresh the markers when open infowindow
+    this.mapLoad(false);
+    // close all the markers that's already open
+    this.closeAllMarkers();
+    // only open the marker that is clicked.
+    marker.isOpen = true;
+    this.setState({markers: Object.assign(this.state.markers,marker)})
+    
+    // Find the venue details using Foursquare API for the clicked marker, and update the location with detail info
+    // https://developer.foursquare.com/docs/api/venues/details
+    SquareAPI.getVenueDetails(marker.id)
+    .then(res => {
+      if(res.meta.code >= 400) {
+        alert("ERROR: " + res.meta.errorDetail);
+      } else {
+        const locationDetails = res.response.venue;
+        this.setState({ locationDetails: Object.assign(this.state.locationDetails, locationDetails) });
+        // this.populateInfoWindow(marker, map);
+      }
+    }).catch(error => alert(`SquareAPI getVenueDetails error: ${error}`));
+  }
+
+  handleListItemClick = (location) => {
+    const marker = this.state.markers.find(marker => marker.id === location.venue.id);
+    this.handleMarkerClick(marker);
   }
 
   componentDidMount() {
@@ -37,7 +75,7 @@ class App extends Component {
     SquareAPI.explore({
       near: 'San Francisco, CA',
       section: 'sights',
-      limit: 20
+      limit: 3
     }).then(results => {
       // Save searched location to locactions array
       const locations = results.response.groups[0].items;
@@ -51,7 +89,8 @@ class App extends Component {
           id: location.venue.id,
           title: location.venue.name,
           icon: location.venue.categories[0].icon,
-          isVisible: true
+          isVisible: true,
+          isOpen: false
         };
       })
       // update the states for this component
@@ -63,17 +102,20 @@ class App extends Component {
     return (
       <div className="App">
         
-        <SideBar {...this.state} markersReload={this.markersReload} />
+        <SideBar {...this.state} mapLoad={this.mapLoad}
+          handleListItemClick={this.handleListItemClick}
+        />
         
         <GoogleMap
-          //handleMarkerClick={this.handleMarkerClick}
           // set the map center at San Francisco
           {...this.state}
           options={{
             center: {lat: 37.7749, lng: -122.4194},
             zoom: 13
           }}
-          markersReload = {this.markersReload}
+          mapLoad = {this.mapLoad}
+          handleMarkerClick={this.handleMarkerClick}
+          li
         />
 
       </div>
