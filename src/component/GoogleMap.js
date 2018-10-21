@@ -11,7 +11,8 @@ class GoogleMap extends Component {
 		this.onScriptLoad = this.onScriptLoad.bind(this);
 		this.state = {
 			IsReady: false,
-			map: {}
+			map: {},
+			markers: []
 		};
 	}
 
@@ -22,6 +23,24 @@ class GoogleMap extends Component {
 				marker.infowindow.close();
 			}
 		})
+	}
+
+	clearAllMarkers = () => {
+		if (this.state.markers) {
+  		console.log('clear markers');
+  		this.state.markers.forEach(marker => {
+  			marker.setMap(null);
+  		});
+  	}
+	}
+
+	clearMarkersAnimation = () => {
+		if (this.state.markers) {
+			console.log('clear animation');
+			this.state.markers.forEach(marker => {
+				marker.setAnimation(null);
+			})
+		}
 	}
 
   	// Add location detail information to google map infowindow and display it
@@ -44,15 +63,15 @@ class GoogleMap extends Component {
 		}
   }
 
-	// This function is where I create the markers and infowindow
-  onMapLoad = (map) => {
+  // This function will clear all markers and infowindows then create new markers and infowindow
+  addMarkers = (map) => {
   	this.closeInfoWindow();
-    // Only display the markers that are set to Visible
-    //filter(marker => marker.isVisible)
-    const foursquareMarkers = this.props.markers.filter(marker => marker.isVisible).map((marker,index) => {
-      // label number for the marker
+  	// Clear all markers on the map
+  	this.clearAllMarkers();
+  	// Create the markers that are set to visible
+  	const foursquareMarkers = this.props.markers.filter(marker => marker.isVisible).map((marker, index) => {
+  		// label number for the marker
       let labelNumber = index + 1;
-    	debugger
       // create a marker per location, set the marker location, title, animation, and label
       let foursquareMarker = new window.google.maps.Marker({
         map: map,
@@ -63,18 +82,10 @@ class GoogleMap extends Component {
         // icon: marker.icon.prefix+'bg_32'+marker.icon.suffix
       });
 
-      // If list item on the sidebar is clicked, open infowindow
-      if (marker.isOpen) {
-      	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
-      	// animate the marker
-      	foursquareMarker.setAnimation(window.google.maps.Animation.DROP);
-      	this.populateInfoWindow(marker, map);
-      } else {
-      	foursquareMarker.setAnimation(null);
-      }
-
-      // If marker is clicked, open infowindow
+  		// If marker is clicked, open infowindow
       foursquareMarker.addListener('click', (evt) => {
+      	this.clearMarkersAnimation();
+      	foursquareMarker.setAnimation(window.google.maps.Animation.BOUNCE);
       	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
       	// function for handling marker click
     		this.props.handleMarkerClick(marker);
@@ -83,7 +94,33 @@ class GoogleMap extends Component {
       });
 
       return foursquareMarker;
+  	});
+
+  	this.setState({ markers: foursquareMarkers });
+  	
+  }
+
+	// This function display the infowindow of a clicked list item.
+  onMapLoad = (map) => {
+  	// close all opend infowindow
+  	this.closeInfoWindow();
+    // clear all markers animation
+    this.clearMarkersAnimation();
+    // loop thru each marker and only open the infowindow for the clicked list item.
+    this.props.markers.forEach((marker) => {
+      // If list item on the sidebar is clicked, open infowindow
+      if (marker.isOpen) {
+      	// reset the map center location
+      	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
+      	// animate the marker
+      	const m = this.state.markers.find(m => m.title === marker.title)
+      	m.setAnimation(window.google.maps.Animation.BOUNCE);
+      	// open the infowindow
+      	this.populateInfoWindow(marker, map);
+      } 
     });
+    
+    this.props.updateSuperState({listItemClicked: false});
     // let hotelMarker = new window.google.maps.Marker({
     //  position: {lat: 37.807660, lng: -122.420520},
     //  map: map,
@@ -95,12 +132,19 @@ class GoogleMap extends Component {
 	onScriptLoad() {
 		// create google map
 		const map = new window.google.maps.Map(
-	      document.getElementById('map'),
-	      this.props.options);
+      document.getElementById('map'),
+      this.props.options);
+
+		map.addListener('click', () => {
+			console.log('mapclick');
+		})
+
+		map.addListener('tilesloaded', () => {
+			console.log('tilesloaded');
+		})
 		this.setState({ map: map });
 		// create the markers and infowindows
-		this.onMapLoad(this.state.map);
-		
+		// this.onMapLoad(this.state.map);
 	}
 
 	// Add the google map script at the end of body element after the map div is mounted.
@@ -124,8 +168,13 @@ class GoogleMap extends Component {
 
 	// Update the markers location from Foursquare after finish updating the componenents
 	componentDidUpdate(prevProps, prevState) {
-		if (this.state.isReady) {
+		if (this.state.isReady && (this.props.markers !== prevProps.markers)) {
+			console.log('update markers');
 			// this.onScriptLoad();
+			this.addMarkers(this.state.map);
+			// this.onMapLoad(this.state.map);
+		} else if (this.props.listItemClicked !== prevProps.listItemClicked) {
+			console.log('list item click');
 			this.onMapLoad(this.state.map);
 		}
 	}

@@ -16,6 +16,8 @@ html, body, .root {
   position: absolute;
   top: 0px;
   z-index: 1;
+  background-color: #106d10;
+  color: white;
 }
 
 #map {
@@ -90,7 +92,7 @@ html, body, .root {
   margin-top: 1rem;
   cursor: pointer;
   box-shadow: 1px 1px 1px rgba(0,0,0,0.3);
-  background: #b90644;
+  background: #106d10;
   color: white;
   display: flex;
   align-items: center;

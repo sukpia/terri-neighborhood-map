@@ -21,6 +21,7 @@ class App extends Component {
       },
       zoom: 13,
       locationDetails: {},
+      listItemClicked: false,
       // deviceType: '',
       closeSidebar: false,
       updateSuperState: obj => {
@@ -41,6 +42,7 @@ class App extends Component {
   handleMarkerClick = (marker) => {
     // close all the markers that's already open
     this.closeAllMarkers();
+
     // only open the marker that is clicked.
     marker.isOpen = true;
     this.setState({markers: Object.assign(this.state.markers,marker),
@@ -63,6 +65,7 @@ class App extends Component {
   }
 
   handleListItemClick = (location) => {
+    this.setState({listItemClicked: true});
     this.handleCloseSidebar();
     const marker = this.state.markers.find(marker => marker.id === location.venue.id);
     this.handleMarkerClick(marker);
