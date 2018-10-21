@@ -15,7 +15,7 @@ class GoogleMap extends Component {
 		};
 	}
 
-	// Close all the markers and infowindows that are opened
+	// Close the infowindows that are opened
 	closeInfoWindow = () => {
 		this.props.markers.forEach(marker => {
 			if (marker.hasOwnProperty('infowindow')) {
@@ -24,14 +24,14 @@ class GoogleMap extends Component {
 		})
 	}
 
-  // Create infowindow
+  	// Add location detail information to google map infowindow and display it
 	populateInfoWindow = (marker, map) => {
 		if((this.props.locationDetails.name === marker.title) && marker.isOpen) {
 			// Set the content for infowindow based on info from Foursquare getVenueDetails 
-			let contentString = '<section class="infowindow">' +
-				'<img src=' + this.props.locationDetails.bestPhoto.prefix +'200x200' + this.props.locationDetails.bestPhoto.suffix + ' alt=' + this.props.locationDetails.name + ' />' +
+			let contentString = '<section class="infowindow" tabIndex=0 aria-label="location details">' +
+				'<img src=' + this.props.locationDetails.bestPhoto.prefix +'200x200' + this.props.locationDetails.bestPhoto.suffix + ' alt="' + marker.title + '" tabIndex=0 />' +
 				'<h3>' + this.props.locationDetails.name + '</h3>' +
-				'<p>' + this.props.locationDetails.location.formattedAddress + '</p>' +
+				'<p tabIndex=0>' + this.props.locationDetails.location.formattedAddress + '</p>' +
 				'</section>';
 			// Create the infowindow with required information and add the infowindow object as a property to the marker
 			marker.infowindow = new window.google.maps.InfoWindow({
@@ -70,7 +70,6 @@ class GoogleMap extends Component {
       	this.populateInfoWindow(marker, map);
       } else {
       	foursquareMarker.setAnimation(null);
-      	console.log(foursquareMarker.title + ' is null');
       }
       
       // If marker is clicked, open infowindow
@@ -85,22 +84,21 @@ class GoogleMap extends Component {
       return foursquareMarker;
     });
 
-    let hotelMarker = new window.google.maps.Marker({
-     position: {lat: 37.807660, lng: -122.420520},
-     map: map,
-     title: 'Argonaut Hotel'
-    });
+    // let hotelMarker = new window.google.maps.Marker({
+    //  position: {lat: 37.807660, lng: -122.420520},
+    //  map: map,
+    //  title: 'Argonaut Hotel'
+    // });
   }
 
   // Create map
 	onScriptLoad() {
-		// if (this.props.loadMap) {
-			const map = new window.google.maps.Map(
-	      document.getElementById('map'),
-	      this.props.options);
-			this.setState({ map: map });
-		// }
-		
+		// create google map
+		const map = new window.google.maps.Map(
+      document.getElementById('map'),
+      this.props.options);
+		this.setState({ map: map });
+		// create the markers and infowindows
 		this.onMapLoad(this.state.map);
 		
 	}

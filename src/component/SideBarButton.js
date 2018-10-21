@@ -5,7 +5,7 @@ export default class SideBarButton extends Component {
 	render() {
 		return(
 			<div className="sidebar-button-container">
-				<button className="sidebar-button" onClick={() => this.props.onHandleButtonClick()} >
+				<button className="sidebar-button" onClick={() => this.props.onHandleButtonClick()} aria-label='Menu'>
 					{this.props.close ? '\u25b6' : '\u25c0'}
 				</button>
 			</div>

@@ -19,7 +19,7 @@ class App extends Component {
       },
       zoom: 13,
       locationDetails: {},
-      deviceType: '',
+      // deviceType: '',
       closeSidebar: false,
       updateSuperState: obj => {
         this.setState(obj);
@@ -36,7 +36,6 @@ class App extends Component {
   }
 
   // If marker is clicked, access foursquare api to get the location detail information
-  // Then add the information to google map infowindow and display it
   handleMarkerClick = (marker) => {
     // close all the markers that's already open
     this.closeAllMarkers();
@@ -57,6 +56,8 @@ class App extends Component {
         // this.populateInfoWindow(marker, map);
       }
     }).catch(error => alert(`SquareAPI getVenueDetails error: ${error}`));
+
+    
   }
 
   handleListItemClick = (location) => {
@@ -77,7 +78,7 @@ class App extends Component {
     SquareAPI.explore({
       near: 'San Francisco, CA',
       section: 'sights',
-      limit: 3
+      limit: 10
     }).then(results => {
       // Save searched location to locactions array
       const locations = results.response.groups[0].items;
@@ -99,10 +100,10 @@ class App extends Component {
       this.setState({locations, center, markers});
     }).catch(error => alert(`SquareAPI Explore Error: ${error}`));
 
-    if(document.querySelector('.sidebar-phone') !== null) {
-      console.log('It is a PHONE');
-      this.setState({deviceType: 'phone' });
-    }
+    // if(document.querySelector('.sidebar-phone') !== null) {
+    //   console.log('It is a PHONE');
+    //   this.setState({deviceType: 'phone' });
+    // }
   }
 
   render() {
