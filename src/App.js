@@ -16,19 +16,10 @@ class App extends Component {
       },
       zoom: 13,
       locationDetails: {},
-      loadMap: true,
       updateSuperState: obj => {
         this.setState(obj);
       }
     };
-  }
-
-  mapLoad = (load) => {
-    if (load) {
-      this.setState({ loadMap: true });
-    } else {
-      this.setState({ loadMap: false });
-    }
   }
 
   closeAllMarkers = () => {
@@ -42,13 +33,12 @@ class App extends Component {
   // If marker is clicked, access foursquare api to get the location detail information
   // Then add the information to google map infowindow and display it
   handleMarkerClick = (marker) => {
-    // don't refresh the markers when open infowindow
-    this.mapLoad(false);
     // close all the markers that's already open
     this.closeAllMarkers();
     // only open the marker that is clicked.
     marker.isOpen = true;
-    this.setState({markers: Object.assign(this.state.markers,marker)})
+    this.setState({markers: Object.assign(this.state.markers,marker),
+      center: { lat: marker.lat, lng: marker.lng } })
     
     // Find the venue details using Foursquare API for the clicked marker, and update the location with detail info
     // https://developer.foursquare.com/docs/api/venues/details
@@ -110,10 +100,9 @@ class App extends Component {
           // set the map center at San Francisco
           {...this.state}
           options={{
-            center: {lat: 37.7749, lng: -122.4194},
+            center: this.state.center,
             zoom: 13
           }}
-          mapLoad = {this.mapLoad}
           handleMarkerClick={this.handleMarkerClick}
           li
         />

@@ -1,12 +1,14 @@
-import React, { Component } from 'react'
-import LocationList from './LocationList'
+import React, { Component } from 'react';
+import LocationList from './LocationList';
+import SideBarButton from './SideBarButton';
 
 class SideBar extends Component {
 	constructor() {
 		super();
 		this.state = {
 			query: "",
-			locations: []
+			locations: [],
+			close: false
 		};
 	}
 
@@ -33,21 +35,29 @@ class SideBar extends Component {
 			return marker;
 		});
 		// Update the state in the App.js
-		this.props.mapLoad(true);
 		this.props.updateSuperState({markers});
+	}
+
+	handleButtonClick = () => {
+		this.setState(state => ({
+			close: !state.close
+		}));
 	}
 
 	render() {
 		// console.log(this.props);
 		return (
-			<section className='sideBar'>
-				<input type={'search'} id={'search'}
-					placeholder={'Search Highlighted locations'}
-					aria-label='search highlighted location'
-					onChange={this.handleChange} autoFocus
-				/>
-				
-				<LocationList {...this.props} locations={this.handleFilterLocation()} handleListItemClick={this.props.handleListItemClick} />
+			<section className={ this.state.close ? 'sidebarContainer close' : 'sidebarContainer'} >
+				<div className='sideBar' aria-label='Sidebar'>
+					<input type={'search'} id={'search'}
+						placeholder={'Search Highlighted locations'}
+						aria-label='search highlighted location'
+						onChange={this.handleChange} autoFocus
+					/>
+					
+					<LocationList {...this.props} locations={this.handleFilterLocation()} handleListItemClick={this.props.handleListItemClick} />
+				</div>
+				<SideBarButton close={this.state.close} onHandleButtonClick={this.handleButtonClick} />
 			</section>
 		);
 	}

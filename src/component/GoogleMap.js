@@ -64,6 +64,7 @@ class GoogleMap extends Component {
 
       // If list item on the sidebar is clicked, open infowindow
       if (marker.isOpen) {
+      	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
       	// animate the marker
       	foursquareMarker.setAnimation(window.google.maps.Animation.DROP);
       	this.populateInfoWindow(marker, map);
@@ -74,6 +75,7 @@ class GoogleMap extends Component {
       
       // If marker is clicked, open infowindow
       foursquareMarker.addListener('click', (evt) => {
+      	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
       	// function for handling marker click
     		this.props.handleMarkerClick(marker);
       	// Open the infowindow for clicked marker
@@ -92,11 +94,13 @@ class GoogleMap extends Component {
 
   // Create map
 	onScriptLoad() {
-		if (this.props.loadMap) {
-			this.state.map = new window.google.maps.Map(
+		// if (this.props.loadMap) {
+			const map = new window.google.maps.Map(
 	      document.getElementById('map'),
 	      this.props.options);
-		}
+			this.setState({ map: map });
+		// }
+		
 		this.onMapLoad(this.state.map);
 		
 	}
@@ -123,7 +127,8 @@ class GoogleMap extends Component {
 	// Update the markers location from Foursquare after finish updating the componenents
 	componentDidUpdate(prevProps, prevState) {
 		if (this.state.isReady) {
-			this.onScriptLoad();
+			// this.onScriptLoad();
+			this.onMapLoad(this.state.map);
 		}
 	}
 
