@@ -3,6 +3,9 @@ import './App.css';
 import GoogleMap from './component/GoogleMap';
 import SideBar from './component/SideBar';
 import SquareAPI from './api/';
+import DesktopBreakPoint from './component/responsive/DesktopBreakPoint';
+import TabletBreakPoint from './component/responsive/TabletBreakPoint';
+import PhoneBreakPoint from './component/responsive/PhoneBreakPoint';
 
 class App extends Component {
   constructor(props) {
@@ -16,6 +19,8 @@ class App extends Component {
       },
       zoom: 13,
       locationDetails: {},
+      deviceType: '',
+      closeSidebar: false,
       updateSuperState: obj => {
         this.setState(obj);
       }
@@ -55,8 +60,15 @@ class App extends Component {
   }
 
   handleListItemClick = (location) => {
+    this.handleCloseSidebar();
     const marker = this.state.markers.find(marker => marker.id === location.venue.id);
     this.handleMarkerClick(marker);
+  }
+
+  handleCloseSidebar = () => {
+    this.setState(state => ({
+      closeSidebar: !state.closeSidebar
+    }));
   }
 
   componentDidMount() {
@@ -86,15 +98,43 @@ class App extends Component {
       // update the states for this component
       this.setState({locations, center, markers});
     }).catch(error => alert(`SquareAPI Explore Error: ${error}`));
+
+    if(document.querySelector('.sidebar-phone') !== null) {
+      console.log('It is a PHONE');
+      this.setState({deviceType: 'phone' });
+    }
   }
 
   render() {
     return (
       <div className="App">
-        
-        <SideBar {...this.state} mapLoad={this.mapLoad}
-          handleListItemClick={this.handleListItemClick}
-        />
+        <DesktopBreakPoint>
+          <div className = 'sidebar-desktop'>
+            <SideBar {...this.state}
+              device={'desktop'}
+              handleListItemClick={this.handleListItemClick}
+              handleCloseSidebar = {this.handleCloseSidebar}
+            />
+          </div>
+        </DesktopBreakPoint>
+        <TabletBreakPoint>
+          <div className = 'sidebar-tablet'>
+            <SideBar {...this.state}
+              device={'tablet'}
+              handleListItemClick={this.handleListItemClick}
+              handleCloseSidebar = {this.handleCloseSidebar}
+            />
+          </div>
+        </TabletBreakPoint>
+        <PhoneBreakPoint>
+          <div className = 'sidebar-phone'>
+            <SideBar {...this.state}
+            device={'phone'}
+              handleListItemClick={this.handleListItemClick}
+              handleCloseSidebar = {this.handleCloseSidebar}
+            />
+          </div>
+        </PhoneBreakPoint>
         
         <GoogleMap
           // set the map center at San Francisco

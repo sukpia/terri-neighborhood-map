@@ -3,8 +3,8 @@ import LocationList from './LocationList';
 import SideBarButton from './SideBarButton';
 
 class SideBar extends Component {
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
 			query: "",
 			locations: [],
@@ -40,14 +40,19 @@ class SideBar extends Component {
 
 	handleButtonClick = () => {
 		this.setState(state => ({
-			close: !state.close
+			close: !state.close,
 		}));
 	}
 
+	componentDidMount() {
+		if(this.props.device === 'phone' || this.props.device === 'tablet') {
+			this.setState({ close: true });
+		}
+	}
+
 	render() {
-		// console.log(this.props);
 		return (
-			<section className={ this.state.close ? 'sidebarContainer close' : 'sidebarContainer'} >
+			<section className={ ((this.state.close || this.props.closeSidebar) && !(this.state.close && this.props.closeSidebar)) ? 'sidebarContainer close' : 'sidebarContainer'} >
 				<div className='sideBar' aria-label='Sidebar'>
 					<input type={'search'} id={'search'}
 						placeholder={'Search Highlighted locations'}
@@ -55,7 +60,10 @@ class SideBar extends Component {
 						onChange={this.handleChange} autoFocus
 					/>
 					
-					<LocationList {...this.props} locations={this.handleFilterLocation()} handleListItemClick={this.props.handleListItemClick} />
+					<LocationList {...this.props} 
+						locations={this.handleFilterLocation()} 
+						handleListItemClick={this.props.handleListItemClick}
+					/>
 				</div>
 				<SideBarButton close={this.state.close} onHandleButtonClick={this.handleButtonClick} />
 			</section>
