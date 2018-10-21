@@ -5,7 +5,8 @@ function LocationList (props) {
 		<ol className='locationList' aria-label='Location List'>
 			{props.locations && props.locations.map((location,index) => (
 				<li key={index} className='listItem' onClick={() => props.handleListItemClick(location)} tabIndex='0' >
-					<img src={location.venue.categories[0].icon.prefix+"32"+location.venue.categories[0].icon.suffix} alt={location.venue.categories[0].name} />
+					{/*< img src={location.venue.categories[0].icon.prefix+"32"+location.venue.categories[0].icon.suffix} alt={location.venue.categories[0].name} /> */}
+					<img src={location.venue ? location.venue.categories[0].icon.prefix+"32"+location.venue.categories[0].icon.suffix : location.categories[0].icon.prefix+"32"+location.categories[0].icon.suffix} alt={location.venue ? location.venue.categories[0].name : location.categories[0].name} />
 					{location.venue.name}
 				</li>
 			))}

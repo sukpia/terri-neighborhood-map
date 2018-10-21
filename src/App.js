@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import GoogleMap from './component/GoogleMap';
 import SideBar from './component/SideBar';
+import PageHeader from './component/PageHeader';
 import SquareAPI from './api/';
 import DesktopBreakPoint from './component/responsive/DesktopBreakPoint';
 import TabletBreakPoint from './component/responsive/TabletBreakPoint';
@@ -11,6 +12,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      neighborhood: 'San Francisco, CA',
       locations: [],
       markers: [],
       center: {
@@ -57,7 +59,7 @@ class App extends Component {
       }
     }).catch(error => alert(`SquareAPI getVenueDetails error: ${error}`));
 
-    
+    this.searchPlace(`${marker.lat},${marker.lng}`, 'hotels');
   }
 
   handleListItemClick = (location) => {
@@ -72,12 +74,42 @@ class App extends Component {
     }));
   }
 
-  componentDidMount() {
+  searchPlace = (latlng, query) => {
+    // use ll (lat,lng) or near
+    // query: a search term to be applied against location names.
+    SquareAPI.search({
+      ll: latlng,
+      query: query,
+      limit: 10
+    }).then(results => {
+      console.log(results);
+      // // Save searched location to locactions array
+      // const locations = results.response.venues;
+      // // Set all the marker locations obtained from Foursquare
+      // const markers = locations.map(location => {
+      //   return {
+      //     lat: location.location.lat,
+      //     lng: location.location.lng,
+      //     id: location.id,
+      //     title: location.name,
+      //     icon: location.categories[0].icon,
+      //     isVisible: true,
+      //     isOpen: false
+      //   };
+      // })
+      // // update the states for this component
+      // this.setState({locations, markers});
+    }).catch(error => alert(`SquareAPI Search Error: ${error}`));
+  }
+
+  explorePlace = (place, section) => {
     // Use Foursquare API 'explore' endpoint to search for venue recommendations
     // https://developer.foursquare.com/docs/api/venues/explore
+    // section: food, drinks, coffee, shops, arts, outdoors, sights, trending/specials, nextVenues, topPicks
+    // use ll (lat,lng) or near
     SquareAPI.explore({
-      near: 'San Francisco, CA',
-      section: 'sights',
+      near: place,
+      section: section,
       limit: 10
     }).then(results => {
       // Save searched location to locactions array
@@ -99,6 +131,10 @@ class App extends Component {
       // update the states for this component
       this.setState({locations, center, markers});
     }).catch(error => alert(`SquareAPI Explore Error: ${error}`));
+  }
+
+  componentDidMount() {
+    this.explorePlace(this.state.neighborhood, 'sights');
 
     // if(document.querySelector('.sidebar-phone') !== null) {
     //   console.log('It is a PHONE');
@@ -109,6 +145,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <PageHeader name={this.state.neighborhood} />
         <DesktopBreakPoint>
           <div className = 'sidebar-desktop'>
             <SideBar {...this.state}

@@ -48,10 +48,11 @@ class GoogleMap extends Component {
   onMapLoad = (map) => {
   	this.closeInfoWindow();
     // Only display the markers that are set to Visible
+    //filter(marker => marker.isVisible)
     const foursquareMarkers = this.props.markers.filter(marker => marker.isVisible).map((marker,index) => {
       // label number for the marker
       let labelNumber = index + 1;
-
+    	debugger
       // create a marker per location, set the marker location, title, animation, and label
       let foursquareMarker = new window.google.maps.Marker({
         map: map,
@@ -71,7 +72,7 @@ class GoogleMap extends Component {
       } else {
       	foursquareMarker.setAnimation(null);
       }
-      
+
       // If marker is clicked, open infowindow
       foursquareMarker.addListener('click', (evt) => {
       	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
@@ -83,7 +84,6 @@ class GoogleMap extends Component {
 
       return foursquareMarker;
     });
-
     // let hotelMarker = new window.google.maps.Marker({
     //  position: {lat: 37.807660, lng: -122.420520},
     //  map: map,
@@ -95,8 +95,8 @@ class GoogleMap extends Component {
 	onScriptLoad() {
 		// create google map
 		const map = new window.google.maps.Map(
-      document.getElementById('map'),
-      this.props.options);
+	      document.getElementById('map'),
+	      this.props.options);
 		this.setState({ map: map });
 		// create the markers and infowindows
 		this.onMapLoad(this.state.map);
