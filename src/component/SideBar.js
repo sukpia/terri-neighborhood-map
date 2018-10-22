@@ -40,7 +40,7 @@ class SideBar extends Component {
 
 	handleButtonClick = () => {
 		this.setState(state => ({
-			close: !state.close,
+			close: !state.close
 		}));
 	}
 
@@ -50,9 +50,16 @@ class SideBar extends Component {
 		}
 	}
 
+	componentDidUpdate(prevProps) {
+		if(this.props.closeSidebar !== prevProps.closeSidebar) {
+			this.setState({ close: this.props.closeSidebar });
+		}
+	}
+
 	render() {
 		return (
-			<section className={ ((this.state.close || this.props.closeSidebar) && !(this.state.close && this.props.closeSidebar)) ? 'sidebarContainer close' : 'sidebarContainer'} >
+			
+			<section className={this.state.close ? 'sidebarContainer close' : 'sidebarContainer'} >
 				<div className='sideBar' aria-label='Sidebar'>
 					<input type={'search'} id={'search'}
 						placeholder={'Search Highlighted locations'}

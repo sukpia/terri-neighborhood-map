@@ -56,12 +56,13 @@ class App extends Component {
         alert("ERROR: " + res.meta.errorDetail);
       } else {
         const locationDetails = res.response.venue;
-        this.setState({ locationDetails: Object.assign(this.state.locationDetails, locationDetails) });
+        // this.setState({ locationDetails: Object.assign(this.state.locationDetails, locationDetails) });
+        this.setState({ locationDetails: locationDetails });
         // this.populateInfoWindow(marker, map);
       }
     }).catch(error => alert(`SquareAPI getVenueDetails error: ${error}`));
 
-    this.searchPlace(`${marker.lat},${marker.lng}`, 'hotels');
+    // this.searchPlace(`${marker.lat},${marker.lng}`, 'hotels');
   }
 
   handleListItemClick = (location) => {
@@ -86,22 +87,22 @@ class App extends Component {
       limit: 10
     }).then(results => {
       console.log(results);
-      // // Save searched location to locactions array
-      // const locations = results.response.venues;
-      // // Set all the marker locations obtained from Foursquare
-      // const markers = locations.map(location => {
-      //   return {
-      //     lat: location.location.lat,
-      //     lng: location.location.lng,
-      //     id: location.id,
-      //     title: location.name,
-      //     icon: location.categories[0].icon,
-      //     isVisible: true,
-      //     isOpen: false
-      //   };
-      // })
-      // // update the states for this component
-      // this.setState({locations, markers});
+      // Save searched location to locactions array
+      const locations = results.response.venues;
+      // Set all the marker locations obtained from Foursquare
+      const markers = locations.map(location => {
+        return {
+          lat: location.location.lat,
+          lng: location.location.lng,
+          id: location.id,
+          title: location.name,
+          icon: location.categories[0].icon,
+          isVisible: true,
+          isOpen: false
+        };
+      })
+      // update the states for this component
+      this.setState({locations, markers});
     }).catch(error => alert(`SquareAPI Search Error: ${error}`));
   }
 
@@ -176,7 +177,7 @@ class App extends Component {
             />
           </div>
         </PhoneBreakPoint>
-        
+
         <GoogleMap
           // set the map center at San Francisco
           {...this.state}
@@ -185,9 +186,8 @@ class App extends Component {
             zoom: 13
           }}
           handleMarkerClick={this.handleMarkerClick}
-          li
+          handleCloseSidebar = {this.handleCloseSidebar}
         />
-
       </div>
     );
   }

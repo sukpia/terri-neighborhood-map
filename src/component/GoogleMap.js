@@ -45,8 +45,9 @@ class GoogleMap extends Component {
 
   	// Add location detail information to google map infowindow and display it
 	populateInfoWindow = (marker, map) => {
+		this.closeInfoWindow();
 		if((this.props.locationDetails.name === marker.title) && marker.isOpen) {
-			// Set the content for infowindow based on info from Foursquare getVenueDetails 
+			// Set the content for infowindow based on info from Foursquare getVenueDetails
 			let contentString = '<section class="infowindow" tabIndex=0 aria-label="location details">' +
 				'<img src=' + this.props.locationDetails.bestPhoto.prefix +'200x200' + this.props.locationDetails.bestPhoto.suffix + ' alt="' + marker.title + '" tabIndex=0 />' +
 				'<h3>' + this.props.locationDetails.name + '</h3>' +
@@ -65,7 +66,7 @@ class GoogleMap extends Component {
 
   // This function will clear all markers and infowindows then create new markers and infowindow
   addMarkers = (map) => {
-  	this.closeInfoWindow();
+  	
   	// Clear all markers on the map
   	this.clearAllMarkers();
   	// Create the markers that are set to visible
@@ -84,13 +85,16 @@ class GoogleMap extends Component {
 
   		// If marker is clicked, open infowindow
       foursquareMarker.addListener('click', (evt) => {
+      	// function for handling marker click
+    		this.props.handleMarkerClick(marker);
       	this.clearMarkersAnimation();
       	foursquareMarker.setAnimation(window.google.maps.Animation.BOUNCE);
       	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
-      	// function for handling marker click
-    		this.props.handleMarkerClick(marker);
       	// Open the infowindow for clicked marker
-  			this.populateInfoWindow(marker, map);
+      	setTimeout(() => {
+      		this.populateInfoWindow(marker, map);
+      	}, 500);
+  			// this.populateInfoWindow(marker, map);
       });
 
       return foursquareMarker;
@@ -101,22 +105,26 @@ class GoogleMap extends Component {
   }
 
 	// This function display the infowindow of a clicked list item.
-  onMapLoad = (map) => {
-  	// close all opend infowindow
-  	this.closeInfoWindow();
+  listItemInfoWindow = (map) => {
     // clear all markers animation
     this.clearMarkersAnimation();
     // loop thru each marker and only open the infowindow for the clicked list item.
     this.props.markers.forEach((marker) => {
       // If list item on the sidebar is clicked, open infowindow
       if (marker.isOpen) {
-      	// reset the map center location
-      	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
       	// animate the marker
       	const m = this.state.markers.find(m => m.title === marker.title)
-      	m.setAnimation(window.google.maps.Animation.BOUNCE);
+      	if (m) {
+      		m.setAnimation(window.google.maps.Animation.BOUNCE);
+      	}
+      	// reset the map center location
+      	this.state.map.setCenter({lat: marker.lat, lng: marker.lng});
+      	
       	// open the infowindow
-      	this.populateInfoWindow(marker, map);
+      	setTimeout(() => {
+      		this.populateInfoWindow(marker, map);
+      	}, 400);
+      	// this.populateInfoWindow(marker, map);
       } 
     });
     
@@ -137,11 +145,12 @@ class GoogleMap extends Component {
 
 		map.addListener('click', () => {
 			console.log('mapclick');
+			this.props.handleCloseSidebar();
 		})
 
-		map.addListener('tilesloaded', () => {
-			console.log('tilesloaded');
-		})
+		// map.addListener('tilesloaded', () => {
+		// 	console.log('tilesloaded');
+		// })
 		this.setState({ map: map });
 		// create the markers and infowindows
 		// this.onMapLoad(this.state.map);
@@ -169,13 +178,11 @@ class GoogleMap extends Component {
 	// Update the markers location from Foursquare after finish updating the componenents
 	componentDidUpdate(prevProps, prevState) {
 		if (this.state.isReady && (this.props.markers !== prevProps.markers)) {
-			console.log('update markers');
 			// this.onScriptLoad();
 			this.addMarkers(this.state.map);
 			// this.onMapLoad(this.state.map);
 		} else if (this.props.listItemClicked !== prevProps.listItemClicked) {
-			console.log('list item click');
-			this.onMapLoad(this.state.map);
+			this.listItemInfoWindow(this.state.map);
 		}
 	}
 
