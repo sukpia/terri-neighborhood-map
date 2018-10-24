@@ -8,7 +8,7 @@ Below is the third-party API used in this project.
 
 - [Google Map API](https://developers.google.com/maps/documentation/javascript/tutorial)
 - [Foursquare API](https://developer.foursquare.com/)
-- [react-responsive package] (https://github.com/contra/react-responsive)
+- [react-responsive package](https://github.com/contra/react-responsive)
 
 ## To Install and Launch Project
 
